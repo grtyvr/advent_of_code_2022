@@ -22,9 +22,9 @@ def readStacks(data):
     return stacks
 
 def runOperation(num, origin, destination):
-    for _ in range(num):
+    for i in range(num):
         crate = stacks[origin-1].pop(0)
-        stacks[destination-1].insert(0,crate)
+        stacks[destination-1].insert(i,crate)
     print(stacks)
 
 def getInstructions(data):
