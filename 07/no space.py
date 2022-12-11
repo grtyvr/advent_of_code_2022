@@ -84,6 +84,13 @@ def findSmallDirs(root):
         total += findSmallDirs(child)
     return total
 
+def getSizes(root):
+    sizes = [root.size]
+    for child in root.children:
+        for item in getSizes(child):
+            sizes.append(item)
+    return sizes
+
 if __name__ == "__main__":
     # the first line of the file is the root directory
     line = data.readline()
@@ -91,10 +98,11 @@ if __name__ == "__main__":
     root = DirNode('/')
     buildDirTree(root, data)
     setDirSize(root)
-    print(findSmallDirs(root))
-
-
-                
-                    
-
-
+    unused=70000000 - root.size
+    spaceNeeded = 30000000 - unused
+    dirs = getSizes(root)
+    dirs.sort()
+    for i, dir in enumerate(dirs):
+        if dir > spaceNeeded:
+            break
+    print(dirs[i])
