@@ -1,92 +1,115 @@
 import math
 #data = open("test.txt")
+#data = open("test3.txt")
 data = open("input.txt")
 
-class Point:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
 class Rope:
-    def __init__(self, head, tail):
-        self.head = head
-        self.tail = tail
-        self.tailPoints = [(tail.x, tail.y)]
+    def __init__(self):
+        self.nodes = []
+        self.tailVisited = []
+    
+    def __str__(self):
+        return f"{len(self.nodes)} knots:"
+    
+    def __repr__(self):
+        retStr =  f"{len(self.nodes)} knots:\n"
+        for i, node in enumerate(self.nodes):
+            retStr += f"\tknot {i} - {str(node)}\n"
+        return retStr
+
+    def length(self):
+        return len(self.nodes)
+    
+    def head(self):
+        return self.nodes[0]
+    
+    def tail(self):
+        return self.nodes[-1]
+    
+    def addNode(self, node):
+        self.nodes.append(node)
+    
+    def update(self, direction):
+        if direction == "U":
+            self.nodes[0].y += 1
+        elif direction == "D":
+            self.nodes[0].y -= 1
+        elif direction == "L":
+            self.nodes[0].x -= 1
+        else:
+            self.nodes[0].x += 1
+        for i, node in enumerate(self.nodes):
+            if i != 0:
+                node.update(self.nodes[i-1].x, self.nodes[i-1].y)
+        self.tailVisited.append((self.nodes[-1].x, self.nodes[-1].y))
+
+
+class Node:
+    def __init__(self, x, y):
+        self.x = int(x)
+        self.y = int(y)
 
     def __str__(self):
-        return f"Head: ({self.head.x}, {self.head.y}), Tail: ({self.tail.x}, {self.tail.y})"
+        return f"Location: ({self.x}, {self.y})"
 
-    def update(self, direction):
+    def update(self, X, Y):
         # perform a step
-        if direction == "U":
-            self.head.y += 1
-        elif direction == "D":
-            self.head.y -= 1
-        elif direction == "L":
-            self.head.x -= 1
-        else:
-            self.head.x += 1
-        
-        if self.moveTail():
-            if self.sameRow():
-                if (self.head.x - self.tail.x) == 2:
-                    self.tail.x += 1
+        if self.move(X, Y):
+            if self.sameRow(X, Y):
+                if (X - self.x) == 2:
+                    self.x += 1
                 else:
-                    self.tail.x -= 1
-            elif self.sameCol():
-                if (self.head.y - self.tail.y) == 2:
-                    self.tail.y += 1
+                    self.x -= 1
+            elif self.sameCol(X, Y):
+                if (Y - self.y) == 2:
+                    self.y += 1
                 else:
-                    self.tail.y -= 1
+                    self.y -= 1
             else:
-                if abs(self.head.x - self.tail.x) >= 2:
-                    if (self.head.x - self.tail.x) > 0:
-                        self.tail.x += 1
+                if abs(X - self.x) >= 2:
+                    if (X - self.x) > 0:
+                        self.x += 1
                     else:
-                        self.tail.x -= 1
+                        self.x -= 1
                 else:
-                    self.tail.x += self.head.x - self.tail.x
-                if abs(self.head.y - self.tail.y) >= 2:
-                    if (self.head.y - self.tail.y) > 0:
-                        self.tail.y += 1
+                    self.x += X - self.x
+                if abs(Y - self.y) >= 2:
+                    if (Y - self.y) > 0:
+                        self.y += 1
                     else:
-                        self.tail.y -= 1
+                        self.y -= 1
                 else:
-                    self.tail.y += self.head.y - self.tail.y
-        self.tailPoints.append((self.tail.x, self.tail.y))
+                    self.y += Y - self.y
 
-    def sameRow(self):
+    def sameRow(self, X, Y):
         same = True
-        if (self.head.y != self.tail.y):
+        if (Y != self.y):
             same = False
         return same
     
-    def sameCol(self):
+    def sameCol(self, X, Y):
         same = True
-        if (self.head.x != self.tail.x):
+        if (X != self.x):
             same = False
         return same
 
-    def moveTail(self):
+    def move(self, X, Y):
         move = False
-        if ((abs(self.head.x - self.tail.x) > 1) or (abs(self.head.y - self.tail.y) > 1)):
+        if ((abs(X - self.x) > 1) or (abs(Y - self.y) > 1)):
             move = True
         return move
 
-
 if __name__ == "__main__":
-    startHead = Point(0,0)
-    startTail = Point(0,0)
-    rope = Rope(startHead, startTail)
-    print(rope)
+    rope = Rope()
+    for _ in range(10):
+        node = Node(0,0)
+        rope.addNode(node)
     while True:
         instruction = data.readline().rstrip()
         if instruction == "":
             break
         else:
             direction, distance = instruction.split()
-            print(f"direction: {direction}, steps: {distance}")
             for i in range(int(distance)):
                 rope.update(direction)
-                print(rope)
-    print(len(set(rope.tailPoints)))
+    print(len(set(rope.tailVisited)))
